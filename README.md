@@ -1,5 +1,8 @@
 # psi-inference
 
+[![PyPI](https://img.shields.io/pypi/v/psi-inference.svg)](https://pypi.org/project/psi-inference/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22342343.svg)](https://doi.org/10.5281/zenodo.22342343)
+
 Critical values and p-values for population stability testing in credit risk
 monitoring: pure numpy and scipy, no pandas dependency, Python 3.11+.
 
@@ -141,6 +144,13 @@ offers a mode that treats the base distribution as a fixed population rather
 than a random sample, which drops the `1/n` term. That mode is not
 implemented here. The PRS covers the fixed-reference case with a null that
 is built for it.
+
+## Citing
+
+The package is archived on Zenodo. The concept DOI 10.5281/zenodo.22342343
+resolves to the latest version; the DOI of version 0.1.0 is
+10.5281/zenodo.22342344. `CITATION.cff` in the repository carries the full
+record.
 
 ## Licence
 
