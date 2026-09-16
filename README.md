@@ -71,6 +71,83 @@ approaching 0.25. Reporting a PSI against 0.10 or 0.25 is reporting a number
 against constants that were never fit to this sample size, this bin count,
 or any stated tolerance for being wrong.
 
+## Why not a z-test on the PSI
+
+Sudjianto and Burakov, "An Information-Theoretic Framework for Credit Risk
+Modeling: Unifying Industry Practice with Statistical Theory for Fair and
+Interpretable Scorecards" (arXiv:2509.09855, section 4), derive a
+delta-method standard error for the information value,
+SE(IV) = sqrt( sum_j (p_b,j − p_g,j)² (1/n_j,g + 1/n_j,b) ), and test
+H0: IV = 0 against H1: IV > 0 with Z = IV / SE(IV) referred to the standard
+normal. Section 4.5 carries the same test to the PSI, "where drift detection
+becomes a hypothesis testing problem with controlled Type I and Type II
+error rates". The Type I error rate is not controlled. With no population
+shift at all, the one-sided test at nominal 5% rejects in 97.4–97.6% of
+samples with 10 bins and, with 20 bins, in every sample but one:
+
+| rejection rate under no shift, nominal 5% | B = 10        | B = 20          |
+| ----------------------------------------- | ------------- | --------------- |
+| z-test, one-sided                         | 0.974 – 0.976 | 1.000           |
+| z-test, two-sided                         | 0.921 – 0.923 | 0.9999 – 1.0000 |
+| Yurdakul–Naranjo (`psi_test`)             | 0.049 – 0.054 | 0.049 – 0.063   |
+
+Each range runs over twelve cells: three binnings (equal shares fixed in
+advance, geometrically decaying shares fixed in advance, and bins at the
+reference sample's own deciles or vingtiles) and four sample-size pairs,
+1,000 against 1,000, 5,000 against 5,000, 50,000 against 20,000 and 50,000
+against 50,000. The two-sided row is the paper's confidence interval
+(equation 22) read as a test. Every cell is 50,000 simulated sample pairs,
+so the Monte Carlo standard error of a rate in the table is below 0.0013. Neither sample size nor the choice of bin shares moves the z-test's
+rate; at nominal 1% the one-sided test rejects in 79.6–79.9% of samples with
+10 bins and 99.9% with 20. The Yurdakul–Naranjo test holds 4.9–5.2% from
+5,000 rows per side; its worst cell is 6.3%, at 1,000 rows per side with 20
+bins and skewed shares.
+
+The reason is structural. The PSI is zero exactly when the two distributions
+coincide and grows quadratically away from that point, so its first
+derivative vanishes at the null and the first-order delta method has nothing
+to propagate: the sampling distribution there is a quadratic form, which is
+why the Yurdakul–Naranjo null is a chi-square and not a normal. The paper's
+formula gets past the zero derivative by holding the weights
+w_j = p_b,j − p_g,j fixed (its equation 17) and propagating only the
+variance of the WoE terms, so the plug-in standard error is evaluated at
+observed differences that are pure sampling noise under the null. Write π_j
+for the common bin probability. Then n_j,g ≈ n π_j and n_j,b ≈ m π_j, so
+1/n_j,g + 1/n_j,b ≈ (1/n + 1/m) / π_j and
+SE² ≈ (1/n + 1/m) × sum_j (p_b,j − p_g,j)² / π_j. That sum is the PSI to
+leading order, since log p_b,j − log p_g,j ≈ (p_b,j − p_g,j) / π_j. So
+SE² ≈ (1/n + 1/m) × PSI, and Z² = PSI² / SE² ≈ PSI / (1/n + 1/m), which is
+the Yurdakul–Naranjo statistic and is asymptotically chi-square with B − 1
+degrees of freedom under the null. Z itself is then roughly a chi variable
+on B − 1 degrees of freedom: nonnegative, mean 2.9 for 10 bins, and with
+the standard-normal critical value of 1.645 at its 2.5th percentile, so
+almost every sample lands above it. The simulation agrees: the mean of Z²
+is 8.9–9.0 for 10 bins and 18.4–19.0 for 20, against B − 1 = 9 and 19, and
+the chi-square prediction of the one-sided 5% rejection rate with 10 bins
+is 0.975. Referring Z² to the chi-square critical value instead of 1.645²
+brings the rate back to 4.7–5.2% from 5,000 rows per side (3.3–5.1% at
+1,000, where the expected counts in the smallest skewed bins fall to about
+seven), which is this package's test with a noisier scale estimate.
+
+The z-test's power is uninformative for the same reason. The shifted cells
+move one or two percentage points of mass from the first bin into the
+second, for both fixed binnings, both bin counts and all four sample-size
+pairs, 20,000 simulated pairs per cell. Against a one-point shift between
+two of ten equal bins, the Yurdakul–Naranjo test rejects in 8.9%, 29.0%,
+98.1% and all but one of the samples at 1,000 against 1,000, 5,000 against
+5,000, 50,000 against 20,000 and 50,000 against 50,000; the z-test rejects
+in 97.8% or more of samples in every shifted cell, against 97.4% or more
+with no shift.
+
+Replications with an empty bin on either side, where both the PSI and the
+standard error are infinite, are excluded and counted: 109 of 50,000 in one
+null cell (1,000 rows per side, 20 bins with skewed shares), 43 and 40 of
+20,000 in the two shifted cells of the same shape, none elsewhere.
+
+The simulation is `benchmarks/ztest_size.py`, run against version 0.1.0 of
+this package with seed 20260914; its output is committed beside it in
+`benchmarks/ztest_size/results.csv`, and a rerun reproduces that file.
+
 ## What this package implements
 
 - **PSI** (`psi_statistic`, `psi_critical_value`, `psi_pvalue`, `psi_test`):
@@ -102,8 +179,10 @@ or any stated tolerance for being wrong.
   audience.
 
 None of these three had a Python implementation before this package.
-`rpsi` on CRAN implements the Yurdakul-Naranjo critical value in R and
-nothing beyond it.
+On CRAN, `rpsi` implements the Yurdakul-Naranjo critical value and a
+multinomial confidence interval, and `PDtoolkit::psi` the same chi-square
+value beside a normal approximation of it; neither goes beyond the
+critical value.
 
 ## Installing and running the tests
 
