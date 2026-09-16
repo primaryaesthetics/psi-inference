@@ -179,10 +179,10 @@ this package with seed 20260914; its output is committed beside it in
   audience.
 
 None of these three had a Python implementation before this package.
-On CRAN, `rpsi` implements the Yurdakul-Naranjo critical value and a
-multinomial confidence interval, and `PDtoolkit::psi` the same chi-square
-value beside a normal approximation of it; neither goes beyond the
-critical value.
+In R, `rpsi` implements the Yurdakul-Naranjo critical value and a multinomial
+confidence interval, and `PDtoolkit::psi` the same chi-square value beside a
+normal approximation of it; neither goes beyond the critical value.
+`PDtoolkit` is on CRAN. `rpsi` is on GitHub only.
 
 ## Installing and running the tests
 
