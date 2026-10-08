@@ -226,10 +226,11 @@ is built for it.
 
 ## Used in
 
-The stability readings of *Out of Time: A Pre-Registered Vintage, Calibration
-and Stability Evaluation of Tabular Foundation Models for Credit Default*
-(Khobotov, 2026) are made with this package. Its Section 2.4 quotes the
-z-test simulation above. The preprint is
+The simulation of the z-test's size in *Out of Time: Calibration and Stability
+of Tabular Foundation Models on Credit Default Vintages* (Khobotov, 2026) calls
+this package for the index and for its test, and the study's own stability
+readings use the same formula; its Appendix B reports the simulation above.
+The preprint is
 [10.5281/zenodo.22999138](https://doi.org/10.5281/zenodo.22999138).
 
 ## Citing
